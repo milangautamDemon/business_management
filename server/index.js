@@ -46,6 +46,17 @@ mangoose.connect('mongodb://localhost:27017/business_mgmt')
     }
    });
 
+   app.delete("/api/datas", async (req, res) => {
+    try {
+      const { id } = req.body;
+       await UserModel.deleteOne({ id });
+       res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting data:', error);
+       res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+   })
+
   app.listen(5000, () => {
     console.log('Server is running on port 5000');
   });

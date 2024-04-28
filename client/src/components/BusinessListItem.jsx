@@ -5,7 +5,28 @@ import { FaRegTrashCan } from "react-icons/fa6";
 
 const BusinessListItem = ({ business, deleteHandler, viewBusinessHandler }) => {
 
-    const handleDeleteBusiness = () => {
+    const handleDeleteBusiness = async() => {
+
+       try{ 
+        const data = { id: business.id };
+        const response = await fetch("http://localhost:5000/api/datas", {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Failed to delete data: ${errorData}`);
+          }
+          const result = await response.json();
+          console.log('Data deleted successfully:', result);
+        }
+        catch (error) {
+          console.error('Error deleting data:', error);
+       }
         deleteHandler(business.id);
     }
 

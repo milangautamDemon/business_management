@@ -1,6 +1,11 @@
 import { useState } from "react";
 import Map from './Map';
+import { v4 as uuidv4 } from 'uuid';
 import { RxCross2 } from 'react-icons/rx';
+
+const generateuniqueId = () => {
+  return uuidv4();
+}
 
 const BusinessAddModal = ({ businessAddModalIsOpen, setBusinessAddModalIsOpen, handleAddBusiness }) => {
 
@@ -26,40 +31,48 @@ const BusinessAddModal = ({ businessAddModalIsOpen, setBusinessAddModalIsOpen, h
     const handleSubmit = async (e) => {
       e.preventDefault();
       const data = {
-         id: Math.floor(Math.random()*100),
+         id: generateuniqueId(),
          name: businessName,
          createdOn: businessDate,
          location: markerCoords,
       };
-     
-      try {
-         const response = await fetch('http://localhost:5000/api/datas', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-           },
-           body: JSON.stringify(data),
-         });
-     
-         if (!response.ok) {
-           const errorData = await response.text();
-           throw new Error(`Failed to insert data: ${errorData}`);
-         }
-     
-         const result = await response.json();
-         console.log('Data inserted successfully:', result);
-      } catch (error) {
-         console.error('Error inserting data:', error);
-      }
-      handleAddBusiness(
-        {
-          id: data.id,
-          name: data.name,
-          createdOn: data.createdOn,
-          location: data.location,
+     const dateRegex = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
+
+     if (!dateRegex.test(businessDate)) {
+      alert('Invalid date format');
+     }
+     else {
+        try {
+          const response = await fetch('http://localhost:5000/api/datas', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Failed to insert data: ${errorData}`);
+          }
+      
+          const result = await response.json();
+          console.log('Data inserted successfully:', result);
+        } catch (error) {
+          console.error('Error inserting data:', error);
         }
-      )
-      setBusinessAddModalIsOpen(false)
+        handleAddBusiness(
+          {
+            id: data.id,
+            name: data.name,
+            createdOn: data.createdOn,
+            location: data.location,
+          }
+        )
+        setBusinessDate("")
+        setBusinessName("")
+        setBusinessAddModalIsOpen(false)
+      }
      };
 
     
@@ -165,7 +178,7 @@ const BusinessAddModal = ({ businessAddModalIsOpen, setBusinessAddModalIsOpen, h
               peer-[:not(:placeholder-shown)]:text-xs
               text-md
             '
-            >Business Organization Date</span>
+            >Business Organization Date (Year/MM/DD)</span>
           </div>
           
           <span className="font-bold text-xl text-slate-800">Add Business Location</span>
